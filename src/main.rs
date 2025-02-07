@@ -3,9 +3,10 @@
 //Rectangle move XY
 ////Keyboard input
 use bevy::prelude::*;
-use bevy::window::{PresentMode, WindowTheme};
+use bevy::window::{PresentMode, WindowResolution, WindowTheme};
 const SCREEN_X: f32 = 1080.0;
 const SCREEN_Y: f32 = 720.0;
+const RADIUS: f32 = 52.;
 
 fn main() {
     let mut app = App::new();
@@ -14,6 +15,7 @@ fn main() {
             title: "I am a window!".into(),
             name: Some("bevy.app".into()),
             resolution: (SCREEN_X, SCREEN_Y).into(),
+            //resolution: WindowResolution::new(SCREEN_X, SCREEN_Y).with_scale_factor_override(1.0),
             present_mode: PresentMode::AutoVsync,
             // Tells Wasm to resize the window according to the available canvas
             fit_canvas_to_parent: true,
@@ -51,8 +53,7 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands.spawn(Camera2d);
-
-    let shape = meshes.add(Circle::new(51.0));
+    let shape = meshes.add(Circle::new(RADIUS));
 
     let color1 = Color::hsl(180.0, 40.0, 0.5);
 
@@ -73,20 +74,32 @@ fn sprite_movement(
 ) {
     for (mut direction, mut transform) in &mut sprite_position {
         if keys.pressed(KeyCode::KeyA) {
-            *direction = Direction::Left;
-            transform.translation.x -= 600. * time.delta_secs();
+            if transform.translation.x > ((-SCREEN_X / 2.0) + RADIUS) {
+                *direction = Direction::Left;
+                transform.translation.x -= 600. * time.delta_secs();
+                println!("X_POS: {}", transform.translation.x);
+            }
         }
         if keys.pressed(KeyCode::KeyD) {
-            *direction = Direction::Right;
-            transform.translation.x += 600. * time.delta_secs();
+            if transform.translation.x < ((SCREEN_X / 2.0) - RADIUS) {
+                *direction = Direction::Right;
+                transform.translation.x += 600. * time.delta_secs();
+                println!("X_POS: {}", transform.translation.x);
+            }
         }
         if keys.pressed(KeyCode::KeyW) {
-            *direction = Direction::Up;
-            transform.translation.y += 600. * time.delta_secs();
+            if transform.translation.y < ((SCREEN_Y / 2.0) - RADIUS) {
+                *direction = Direction::Up;
+                transform.translation.y += 600. * time.delta_secs();
+                println!("Y_POS: {}", transform.translation.y);
+            }
         }
         if keys.pressed(KeyCode::KeyS) {
-            *direction = Direction::Down;
-            transform.translation.y -= 600. * time.delta_secs();
+            if transform.translation.y > ((-SCREEN_Y / 2.0) + RADIUS) {
+                *direction = Direction::Down;
+                transform.translation.y -= 600. * time.delta_secs();
+                println!("Y_POS: {}", transform.translation.y);
+            }
         }
     }
 } //
