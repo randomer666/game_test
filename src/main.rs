@@ -1,14 +1,7 @@
-//! Shows how to set the solid color that is used to paint the window before the frame gets drawn.
-//!
-//! Acts as background color, since pixels that are not drawn in a frame remain unchanged.
 //TODO: Show rectangle
 
 //Rectangle move XY
 ////Keyboard input
-//! Shows how to render simple primitive shapes with a single color.
-//!
-//! You can toggle wireframes with the space bar except on wasm. Wasm does not support
-//! `POLYGON_MODE_LINE` on the gpu.
 use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowTheme};
 const SCREEN_X: f32 = 1080.0;
@@ -46,6 +39,8 @@ fn main() {
 
 #[derive(Component)]
 enum Direction {
+    Up,
+    Down,
     Left,
     Right,
 }
@@ -57,9 +52,9 @@ fn setup(
 ) {
     commands.spawn(Camera2d);
 
-    let shape = meshes.add(Rectangle::new(51.0, 100.0));
+    let shape = meshes.add(Circle::new(51.0));
 
-    let color1 = Color::hsl(180.0, 1.0, 0.5);
+    let color1 = Color::hsl(180.0, 40.0, 0.5);
 
     commands.spawn((
         Mesh2d(shape),
@@ -71,19 +66,27 @@ fn setup(
 
 /// The sprite is animated by changing its translation depending on the time that has passed since
 /// the last frame.
-fn sprite_movement(time: Res<Time>, mut sprite_position: Query<(&mut Direction, &mut Transform)>) {
-    for (mut logo, mut transform) in &mut sprite_position {
-        match *logo {
-            Direction::Right => transform.translation.x += 150. * time.delta_secs(),
-            Direction::Left => transform.translation.x -= 150. * time.delta_secs(),
+fn sprite_movement(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut sprite_position: Query<(&mut Direction, &mut Transform)>,
+    time: Res<Time>,
+) {
+    for (mut direction, mut transform) in &mut sprite_position {
+        if keys.pressed(KeyCode::KeyA) {
+            *direction = Direction::Left;
+            transform.translation.x -= 600. * time.delta_secs();
         }
-
-        if transform.translation.x > SCREEN_X {
-            *logo = Direction::Left;
-            println!("Bang left {}", transform.translation.x);
-        } else if transform.translation.x < -SCREEN_X {
-            *logo = Direction::Right;
-            println!("Bang right {}", transform.translation.x);
+        if keys.pressed(KeyCode::KeyD) {
+            *direction = Direction::Right;
+            transform.translation.x += 600. * time.delta_secs();
+        }
+        if keys.pressed(KeyCode::KeyW) {
+            *direction = Direction::Up;
+            transform.translation.y += 600. * time.delta_secs();
+        }
+        if keys.pressed(KeyCode::KeyS) {
+            *direction = Direction::Down;
+            transform.translation.y -= 600. * time.delta_secs();
         }
     }
-}
+} //
